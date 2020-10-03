@@ -49,8 +49,9 @@ app.get('/ventilatordetails',middleware.checkToken,(req,res) => {
 //SEARCH VENTILATOR BY STATUS
 app.post('/ventilatorbystatus',middleware.checkToken,(req,res) => {
     var status = req.body.status;
-    console.log(status);
-    var data =db.collection('ventilator').find({"status" : status}).toArray().
+    console.log("searching by status");
+    var query ={"status" : status}
+    var data =db.collection('ventilator').find(query).toArray().
     then(result => res.json(result));
 });
 
@@ -58,7 +59,8 @@ app.post('/ventilatorbystatus',middleware.checkToken,(req,res) => {
 //SEARCH HOSPITAL BY NAME
 app.post('/hospitalbyname',middleware.checkToken,(req,res) => {
     var name =req.body.name;
-    var data =db.collection('hospital').find({"name" : new RegExp(name,'i')}).toArray().
+    var query={"name" : new RegExp(name,'i')};
+    var data =db.collection('hospital').find(query).toArray().
     then(result => res.json(result));
 });
 
@@ -66,17 +68,18 @@ app.post('/hospitalbyname',middleware.checkToken,(req,res) => {
 //SEARCH VENTILATOR BY HOSPITAL NAME
 app.post('/ventilatorbyhospital',middleware.checkToken,(req,res) => {
     var name = req.query.name;
-    console.log(name);
-    var data =db.collection('ventilator').find({"name":new RegExp(name,'i')}).toArray().
+    console.log("Searching by hospital name ");
+    var query1={"name":new RegExp(name,'i')};
+    var data =db.collection('ventilator').find(query1).toArray().
     then(result => res.json(result));
 });
 
 //UPDATE VENTILATOR
 app.put('/updateventilator',middleware.checkToken, (req,res) => {
+    console.log("updating the ventilator");
     var ventid ={ventilaorId: req.body.ventilatorId};
-    console.log(ventid);
-    var newvalues={$set: {status:req.body.status} };
-    db.collection('ventilator').updateOne(ventid,newvalues, function(err,result) {
+    var query={$set: {status:req.body.status} };
+    db.collection('ventilator').updateOne(ventid,query, function(err,result) {
         res.json('1 document updated');
         if (err) throw err;
     });
@@ -89,10 +92,10 @@ app.post('/addventilator',middleware.checkToken, (req,res) => {
     var ventilatorId=req.body.ventilatorId;
     var status=req.body.status;
     var name=req.body.name;
-    var item={
+    var query={
         hId:hId,ventilatorId:ventilatorId, status:status, name:name
     };
-    db.collection('ventilator').insertOne(item, function(err,result) {
+    db.collection('ventilator').insertOne(query, function(err,result) {
         res.json('1 document inserted');
         if (err) throw err;
 });
@@ -101,14 +104,10 @@ app.post('/addventilator',middleware.checkToken, (req,res) => {
 
 //DELETE THE VENTILATOR
 app.post('/deleteventilator',middleware.checkToken, (req,res) => {
-    var hId=req.body.hId;
-    var ventilatorId=req.body.ventilatorId;
-    var status=req.body.status;
-    var name=req.body.name;
-    var item={
-        hId:hId,ventilatorId:ventilatorId, status:status, name:name
-    };
-    db.collection('ventilator').insertOne(item, function(err,result) {
+    console.log("deleting")
+    var ventilatorId=req.query.ventilatorId;
+    var query1={ "ventilatorId":ventilatorId };
+    db.collection('ventilator').deleteOne(query1, function(err,result) {
         res.json('1 document deleted');
         if (err) throw err;
 });
